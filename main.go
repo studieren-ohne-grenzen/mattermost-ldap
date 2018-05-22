@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/RangelReale/osin"
-	ldap "github.com/zonradkuse/go-ldap-authenticator"
+	ldap "github.com/studieren-ohne-grenzen/mattermost-ldap-sync"
 	mauth "github.com/zonradkuse/oauth-authenticator"
 )
 
@@ -37,6 +37,11 @@ func main() {
 	transformer := LDAPTransformer{}
 	ldapAuthenticator := ldap.NewLDAPAuthenticator(config.Ldap.BindDn, config.Ldap.BindPassword, config.Ldap.QueryDn, selectors, transformer)
 	err = ldapAuthenticator.Connect(config.Ldap.BindUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ldapAuthenticator.ConnectMattermost(config.Mattermost.Url, config.Mattermost.Username, config.Mattermost.Password)
 	if err != nil {
 		log.Fatal(err)
 	}

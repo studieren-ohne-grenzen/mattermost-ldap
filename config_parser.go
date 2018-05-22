@@ -22,9 +22,16 @@ type LdapConfig struct {
 	QueryDn      string
 }
 
+type MattermostConfig struct {
+	Url      string
+	Username string
+	Password string
+}
+
 type config struct {
-	Ldap  LdapConfig
-	Mysql MysqlConfig
+	Ldap       LdapConfig
+	Mysql      MysqlConfig
+	Mattermost MattermostConfig
 }
 
 func parseConfig(path string) (cfg config) {
