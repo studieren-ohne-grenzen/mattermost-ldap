@@ -9,6 +9,8 @@ import (
 	mauth "github.com/zonradkuse/oauth-authenticator"
 )
 
+type UserData = ldap.UserData
+
 func main() {
 	var cli CLIParameters
 	err := handleCLIParameters(&cli)

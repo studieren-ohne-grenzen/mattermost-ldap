@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/studieren-ohne-grenzen/mattermost-ldap-sync"
 	ldap "github.com/zonradkuse/go-ldap-authenticator"
 
 	"regexp"
@@ -11,7 +12,7 @@ import (
 type LDAPTransformer struct{}
 
 func (this LDAPTransformer) Transform(entry *ldap.Entry) interface{} {
-	user := NewUserData()
+	user := ldapsync.NewUserData()
 
 	for _, attr := range entry.Attributes {
 		if attr.Name == "mail" {
