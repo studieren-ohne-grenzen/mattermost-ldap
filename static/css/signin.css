@@ -8,6 +8,11 @@ body {
   justify-content: center;  
   background-color: #f5f5f5;
 }
+
+.logo {
+  width: 100%;
+}
+
 .login {  
   padding: 40px 20px;
   background-color: #fff;
