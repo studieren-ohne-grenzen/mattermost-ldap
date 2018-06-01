@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+type TemplateData struct {
+	Error    string
+	HasError bool
+}
+
 func renderTemplate(w http.ResponseWriter, id string) {
 	renderTemplateWithData(w, id, "")
 }

@@ -35,5 +35,15 @@ func startServer(server *mauth.OAuthServer) {
 }
 
 func handleLoginLanding(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "login.html")
+	var templ TemplateData
+	if r.Context().Value("error") != nil {
+		templ.Error = r.Context().Value("error").(string)
+		templ.HasError = r.Context().Value("hasError").(bool)
+
+		renderTemplateWithData(w, "login.html", templ)
+		return
+	}
+
+	templ.HasError = false
+	renderTemplateWithData(w, "login.html", templ)
 }
