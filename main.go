@@ -48,6 +48,12 @@ func main() {
 	}
 
 	oauthServer := mauth.NewServer(db, config.Mysql.OauthSchemaPrefix, cfg, &ldapAuthenticator)
+	oauthServer.RouteInfo = config.Oauth.RouteInfo
+	oauthServer.RouteLogin = config.Oauth.RouteLogin
+	oauthServer.RouteStatic = config.Oauth.RouteStatic
+	oauthServer.RouteToken = config.Oauth.RouteToken
+	oauthServer.StaticPath = config.Oauth.StaticPath
+	oauthServer.TemplatePath = config.Oauth.TemplatePath
 
 	if *cli.StartServer {
 		oauthServer.ListenAndServe(config.General.ListenAddr)
