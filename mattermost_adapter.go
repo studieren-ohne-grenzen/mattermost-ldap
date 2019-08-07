@@ -25,6 +25,9 @@ func (auth *AuthenticatorWithSync) getAllOAuthUsers() ([]*model.User, error) {
 				result = append(result, user)
 			}
 		}
+
+		curPage++
+		terminate = len(users) == 0
 	}
 
 	return result, nil
@@ -112,7 +115,7 @@ func (auth *AuthenticatorWithSync) checkGroupForMattermostUser(group group, mail
 
 	if resp.StatusCode == 404 {
 		newTeam := model.Team{}
-		newTeam.Name = strings.Replace(group.uid, "_", "-", -1)
+		newTeam.Name = auth.normalizeGroupName(group.uid)
 		newTeam.DisplayName = group.name
 		newTeam.Type = "I"
 		team, resp = auth.Mattermost().CreateTeam(&newTeam)
@@ -137,4 +140,8 @@ func (auth *AuthenticatorWithSync) checkGroupForMattermostUser(group group, mail
 	}
 
 	log.Printf("Added user %s to team %s \n", user.Email, team.DisplayName)
+}
+
+func (auth *AuthenticatorWithSync) normalizeGroupName(name string) string {
+	return strings.Replace(name, "_", "-", -1)
 }
