@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// MysqlConfig describes all possible MySQL configuration fields
 type MysqlConfig struct {
 	OauthTable        string
 	OauthSchemaPrefix string
@@ -15,23 +16,47 @@ type MysqlConfig struct {
 	Password          string
 }
 
+// LdapConfig describes all possible LDAP configuration fields
 type LdapConfig struct {
-	BindDn       string
-	BindPassword string
-	BindUrl      string
-	QueryDn      string
+	BindDn           string
+	BindPassword     string
+	BindURL          string
+	QueryDn          string
+	GroupMemberQuery string
+	GroupBaseDN      string
+
+	AttrSelectors []string
 }
 
+// OauthConfig describes all possible Oauth configuration fields
+type OauthConfig struct {
+	StaticPath   string
+	TemplatePath string
+	RouteStatic  string
+	RouteLogin   string
+	RouteToken   string
+	RouteInfo    string
+}
+
+// MattermostConfig describes all possible Mattermost configuration fields
 type MattermostConfig struct {
-	Url      string
-	Username string
-	Password string
+	URL            string
+	Username       string
+	Password       string
+	UsernamePrefix string
+}
+
+// GeneralConfig describes all general configuration properties
+type GeneralConfig struct {
+	ListenAddr string
 }
 
 type config struct {
 	Ldap       LdapConfig
 	Mysql      MysqlConfig
+	Oauth      OauthConfig
 	Mattermost MattermostConfig
+	General    GeneralConfig
 }
 
 func parseConfig(path string) (cfg config) {

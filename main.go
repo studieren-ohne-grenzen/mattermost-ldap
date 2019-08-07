@@ -5,14 +5,11 @@ import (
 	"log"
 
 	"github.com/RangelReale/osin"
-	ldap "github.com/studieren-ohne-grenzen/mattermost-ldap-sync"
 	mauth "github.com/zonradkuse/oauth-authenticator"
 )
 
-type UserData = ldap.UserData
-
 func main() {
-	var cli CLIParameters
+	var cli cliParameters
 	err := handleCLIParameters(&cli)
 
 	if err != nil {
@@ -34,31 +31,33 @@ func main() {
 	cfg.AllowGetAccessRequest = true
 	cfg.AllowClientSecretInParams = true
 
-	log.Println("Starting OAuth...")
-	selectors := []string{"mail", "createTimestamp", "entryUUID", "cn"}
-	transformer := LDAPTransformer{}
-	ldapAuthenticator := ldap.NewLDAPAuthenticator(config.Ldap.BindDn, config.Ldap.BindPassword, config.Ldap.QueryDn, selectors, transformer)
-	err = ldapAuthenticator.Connect(config.Ldap.BindUrl)
-	if err != nil {
+	var transformer Transformer
+	// If ever necessary - refactor them into config.Ldap, however they are quite standard keep them for now
+	transformer.CNAttrName = "cn"
+	transformer.MailAttrName = "mail"
+	transformer.UIDAttrName = "uid"
+	transformer.UsernamePrefix = config.Mattermost.UsernamePrefix
+
+	ldapAuthenticator := NewAuthenticatorWithSync(config.Ldap.BindDn, config.Ldap.BindPassword, config.Ldap.QueryDn, config.Ldap.GroupMemberQuery, config.Ldap.GroupBaseDN, transformer)
+	if err := ldapAuthenticator.Connect(config.Ldap.BindURL); err != nil {
 		log.Fatal(err)
 	}
 
-	err = ldapAuthenticator.ConnectMattermost(config.Mattermost.Url, config.Mattermost.Username, config.Mattermost.Password)
-	if err != nil {
+	if err := ldapAuthenticator.ConnectMattermost(config.Mattermost.URL, config.Mattermost.Username, config.Mattermost.Password); err != nil {
 		log.Fatal(err)
 	}
 
-	oauthServer := mauth.NewOAuthServer(db, config.Mysql.OauthSchemaPrefix, cfg, &ldapAuthenticator, handleLoginLanding)
+	oauthServer := mauth.NewServer(db, config.Mysql.OauthSchemaPrefix, cfg, &ldapAuthenticator)
 
 	if *cli.StartServer {
-		startServer(&oauthServer)
+		oauthServer.ListenAndServe(config.General.ListenAddr)
 	}
 
 	if *cli.AddClient {
-		oauthServer.CreateClient(*cli.ClientId, *cli.ClientSecret, *cli.RedirectUri)
+		oauthServer.CreateClient(*cli.ClientID, *cli.ClientSecret, *cli.RedirectURI)
 	}
 
 	if *cli.RevokeClient {
-		oauthServer.RemoveClient(*cli.ClientId)
+		oauthServer.RemoveClient(*cli.ClientID)
 	}
 }
