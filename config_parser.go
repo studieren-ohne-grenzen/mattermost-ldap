@@ -8,7 +8,7 @@ import (
 
 // MysqlConfig describes all possible MySQL configuration fields
 type MysqlConfig struct {
-	OauthTable        string
+	OauthDB           string
 	OauthSchemaPrefix string
 	Host              string
 	Port              string
