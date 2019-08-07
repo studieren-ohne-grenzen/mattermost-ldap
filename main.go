@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/jasonlvhit/gocron"
+
 	"github.com/RangelReale/osin"
 	mauth "github.com/zonradkuse/oauth-authenticator"
 )
@@ -56,6 +58,8 @@ func main() {
 	oauthServer.TemplatePath = config.Oauth.TemplatePath
 
 	if *cli.StartServer {
+		gocron.Every(5).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
+
 		oauthServer.ListenAndServe(config.General.ListenAddr)
 	}
 

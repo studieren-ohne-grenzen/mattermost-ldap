@@ -24,7 +24,13 @@ type AuthenticatorWithSync struct {
 	groupMemberQuery string
 	groupBaseDn      string
 
-	mattermost *model.Client4
+	mattermostClient *model.Client4
+
+	mattermostURL      string
+	mattermostUsername string
+	mattermostPassword string
+
+	transformer Transformer
 }
 
 // NewAuthenticatorWithSync creates a new authenticator with Mattermost syncing functionality
@@ -36,6 +42,8 @@ func NewAuthenticatorWithSync(bindDn, bindPassword, queryDn, groupMemberQuery, g
 	syncAuther.userDn = queryDn
 	syncAuther.groupMemberQuery = groupMemberQuery
 	syncAuther.groupBaseDn = groupBaseDn
+
+	syncAuther.transformer = transformer
 
 	return syncAuther
 }
@@ -52,15 +60,49 @@ func (auth *AuthenticatorWithSync) Close() {
 
 // ConnectMattermost connects to the given mattermost instance
 func (auth *AuthenticatorWithSync) ConnectMattermost(url, username, password string) error {
-	auth.mattermost = model.NewAPIv4Client(url)
-	_, resp := auth.mattermost.Login(username, password)
+	auth.mattermostClient = model.NewAPIv4Client(url)
+	_, resp := auth.mattermostClient.Login(username, password)
+
+	auth.mattermostURL = url
+	auth.mattermostUsername = username
+	auth.mattermostPassword = password
 
 	if resp.Error != nil {
 		log.Printf("Got error during login: %+v\n", resp.Error)
-		return errors.New("Login failed")
+		return resp.Error
 	}
 
 	return nil
+}
+
+// Mattermost returns the current valid mattermost connection
+func (auth *AuthenticatorWithSync) Mattermost() *model.Client4 {
+	if _, resp := auth.mattermostClient.GetPing(); resp.Error != nil {
+		// Ping was not successful, retry to connect
+		if err := auth.ReconnectMattermost(10); err != nil {
+			// Reconnect was not successful, there is something more troublesome going on...
+			panic(err)
+		}
+	}
+
+	return auth.mattermostClient
+}
+
+// ReconnectMattermost tries to reconnect to mattermost within maxReconnectCount times
+func (auth *AuthenticatorWithSync) ReconnectMattermost(maxReconnectCount uint) error {
+	if err := auth.ConnectMattermost(auth.mattermostURL, auth.mattermostUsername, auth.mattermostPassword); err != nil {
+		log.Printf("Could not connect to mattermost: %+v\n", err)
+		// login was not successful
+		if maxReconnectCount >= 0 {
+			// but we have some more tries to go
+			log.Println("Retrying to connect to mattermost")
+			return auth.ReconnectMattermost(maxReconnectCount - 1)
+		}
+
+		return errors.New("Could not reconnect to mattermost")
+	}
+
+	return nil // sucessful connection
 }
 
 // GetUserByID from LDAP
@@ -76,6 +118,7 @@ func (auth AuthenticatorWithSync) Authenticate(username, password string) (strin
 	}
 
 	auth.syncMattermostForUser(uid)
+	
 	return uid, nil
 }
 
