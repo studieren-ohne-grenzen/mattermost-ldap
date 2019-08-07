@@ -59,8 +59,10 @@ func main() {
 
 	if *cli.StartServer {
 		gocron.Every(5).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
+		gocron.Start()
 
 		oauthServer.ListenAndServe(config.General.ListenAddr)
+
 	}
 
 	if *cli.AddClient {
