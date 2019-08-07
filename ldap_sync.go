@@ -118,7 +118,7 @@ func (auth AuthenticatorWithSync) Authenticate(username, password string) (strin
 	}
 
 	auth.syncMattermostForUser(uid)
-	
+
 	return uid, nil
 }
 
@@ -164,10 +164,43 @@ func (auth *AuthenticatorWithSync) syncMattermostForUser(uid string) {
 		return
 	}
 
-	auth.checkMattermostUser(user.(userData).ID, user.(userData).Username, user.(userData).Name, user.(userData).Email)
+	mattermostUser, mmErr := auth.Mattermost().GetUserByEmail(user.(userData).Email, "")
+	if mmErr.Error != nil {
+		log.Printf("Could not retrieve user from mattermost: %+v\n", mmErr.Error)
+		return
+	}
+
+	auth.checkMattermostUser(user.(userData).ID, mattermostUser.Username, user.(userData).Name, mattermostUser.Email)
 
 	groups := auth.fetchGroupsForUser(uid)
-	for _, group := range groups {
-		auth.checkGroupForMattermostUser(group, user.(userData).Email)
+	mattermostGroups, mmErr := auth.Mattermost().GetTeamsForUser(mattermostUser.Id, "")
+	if mmErr.Error != nil {
+		log.Printf("Could not retrieve groups for user %s from mattermost: %+v\n", mattermostUser.Username, mmErr.Error)
+		return
 	}
+
+	// check which groups we need to add
+	for _, group := range groups {
+		found := false
+		for index, mmGroup := range mattermostGroups {
+			if auth.normalizeGroupName(group.uid) == mmGroup.Name {
+				// user already in group, delete entry from mattermost array. No need to consider it further
+				found = true
+				mattermostGroups = append(mattermostGroups[:index], mattermostGroups[index+1:]...)
+				break
+			}
+		}
+
+		if !found {
+			auth.checkGroupForMattermostUser(group, mattermostUser.Email)
+		}
+	}
+
+	for _, group := range mattermostGroups {
+		// all these remaining groups could not be matched against a ldap group. remove the user!
+		if _, mmErr := auth.Mattermost().RemoveTeamMember(group.Id, mattermostUser.Id); mmErr.Error != nil {
+			log.Printf("Could not remove user %s from team %s:%+v\n", mattermostUser.Username, group.Name, mmErr.Error)
+		}
+	}
+
 }
