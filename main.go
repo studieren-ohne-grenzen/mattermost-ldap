@@ -58,7 +58,7 @@ func main() {
 	oauthServer.TemplatePath = config.Oauth.TemplatePath
 
 	if *cli.StartServer {
-		gocron.Every(5).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
+		gocron.Every(30).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
 		gocron.Start()
 
 		oauthServer.ListenAndServe(config.General.ListenAddr)
