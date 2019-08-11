@@ -90,14 +90,15 @@ func (auth *AuthenticatorWithSync) checkMattermostUser(id int64, username, name,
 
 	// Update user if not just created
 	if !created {
-		user.Username = username
-		user.Email = mail
-		user.FirstName = strings.Split(name, " ")[0]
+		var patch model.UserPatch
+		patch.Username = &username
+		patch.Email = &mail
+		patch.FirstName = &strings.Split(name, " ")[0]
 		if len(strings.Split(name, " ")) > 1 {
-			user.LastName = strings.Split(name, " ")[1]
+			patch.LastName = &strings.Split(name, " ")[1]
 		}
 
-		_, resp = auth.Mattermost().UpdateUser(user)
+		_, resp = auth.Mattermost().PatchUser(user.Id, &patch)
 		if resp.Error != nil {
 			log.Printf("Could not update existing user, got Error %+v", resp.Error)
 			return
