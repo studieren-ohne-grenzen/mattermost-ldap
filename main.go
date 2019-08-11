@@ -61,6 +61,8 @@ func main() {
 		gocron.Every(30).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
 		gocron.Start()
 
+		go ldapAuthenticator.syncAllOAuthUsers()
+
 		oauthServer.ListenAndServe(config.General.ListenAddr)
 
 	}

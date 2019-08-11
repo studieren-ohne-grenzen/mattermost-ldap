@@ -179,6 +179,8 @@ func (auth *AuthenticatorWithSync) syncMattermostForUser(uid string) {
 		return
 	}
 
+	log.Printf("Comparing [ldap: %+v] vs. [mattermost: %+v]", groups, mattermostGroups)
+
 	// check which groups we need to add
 	for _, group := range groups {
 		found := false
