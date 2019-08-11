@@ -179,7 +179,12 @@ func (auth *AuthenticatorWithSync) syncMattermostForUser(uid string) {
 		return
 	}
 
-	log.Printf("Comparing [ldap: %+v] vs. [mattermost: %+v]", groups, mattermostGroups)
+	var mattermostTeamNames []string
+	for _, team := range mattermostGroups {
+		mattermostTeamNames = append(mattermostTeamNames, team.Name)
+	}
+
+	log.Printf("Comparing [ldap: %+v] vs. [mattermost: %+v]", groups, mattermostTeamNames)
 
 	// check which groups we need to add
 	for _, group := range groups {
