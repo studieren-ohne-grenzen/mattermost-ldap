@@ -59,6 +59,7 @@ func main() {
 
 	if *cli.StartServer {
 		gocron.Every(30).Minutes().Do(ldapAuthenticator.syncAllOAuthUsers)
+		gocron.Every(1).Day().Do(ldapAuthenticator.ReconnectMattermost, 5)
 		gocron.Start()
 
 		go ldapAuthenticator.syncAllOAuthUsers()
