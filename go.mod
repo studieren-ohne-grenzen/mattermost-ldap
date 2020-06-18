@@ -11,6 +11,7 @@ require (
 	github.com/felipeweb/osin-mysql v0.0.0-20170620113854-269603eb06cf
 	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
+	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/websocket v1.4.2 // indirect
@@ -18,8 +19,13 @@ require (
 	github.com/mattermost/mattermost-server v5.11.1+incompatible
 	github.com/nicksnyder/go-i18n v1.10.1 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
+	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.15.0 // indirect
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
+	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
