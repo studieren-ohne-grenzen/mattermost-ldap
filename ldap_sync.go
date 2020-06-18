@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-ldap/ldap"
 	"github.com/mattermost/mattermost-server/model"
-	lauth "github.com/zonradkuse/go-ldap-authenticator"
+	"github.com/studieren-ohne-grenzen/mattermost-ldap/ldapauthenticator"
 )
 
 type group struct {
@@ -16,9 +16,9 @@ type group struct {
 	name string
 }
 
-// AuthenticatorWithSync composes lauth.Authenticator with mattermost and syncs groups and users
+// AuthenticatorWithSync composes ldapauthenticator.Authenticator with mattermost and syncs groups and users
 type AuthenticatorWithSync struct {
-	authenticator *lauth.Authenticator
+	authenticator *ldapauthenticator.Authenticator
 
 	userDn           string
 	groupMemberQuery string
@@ -37,7 +37,7 @@ type AuthenticatorWithSync struct {
 func NewAuthenticatorWithSync(bindDn, bindPassword, queryDn, groupMemberQuery, groupBaseDn string, transformer Transformer) AuthenticatorWithSync {
 	var syncAuther AuthenticatorWithSync
 
-	auther := lauth.NewAuthenticator(bindDn, bindPassword, queryDn, transformer)
+	auther := ldapauthenticator.NewAuthenticator(bindDn, bindPassword, queryDn, transformer)
 	syncAuther.authenticator = &auther
 	syncAuther.userDn = queryDn
 	syncAuther.groupMemberQuery = groupMemberQuery

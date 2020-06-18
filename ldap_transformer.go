@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 
-	ldap "github.com/zonradkuse/go-ldap-authenticator"
+	"github.com/studieren-ohne-grenzen/mattermost-ldap/ldapauthenticator"
 )
 
 // Transformer transforms a single LDAP entry into a user entity
@@ -24,7 +24,7 @@ func (transformer Transformer) Selectors() []string {
 }
 
 // Transform performs the actual tranformation
-func (transformer Transformer) Transform(entry *ldap.Entry) interface{} {
+func (transformer Transformer) Transform(entry *ldapauthenticator.Entry) interface{} {
 	user := newUserData()
 
 	for _, attr := range entry.Attributes {

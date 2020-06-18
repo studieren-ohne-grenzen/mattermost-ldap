@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"github.com/jasonlvhit/gocron"
+	"github.com/studieren-ohne-grenzen/mattermost-ldap/oauthenticator"
 
 	"github.com/RangelReale/osin"
-	mauth "github.com/zonradkuse/oauth-authenticator"
 )
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	oauthServer := mauth.NewServer(db, config.Mysql.OauthSchemaPrefix, cfg, &ldapAuthenticator)
+	oauthServer := oauthenticator.NewServer(db, config.Mysql.OauthSchemaPrefix, cfg, &ldapAuthenticator)
 	oauthServer.RouteInfo = config.Oauth.RouteInfo
 	oauthServer.RouteLogin = config.Oauth.RouteLogin
 	oauthServer.RouteStatic = config.Oauth.RouteStatic
